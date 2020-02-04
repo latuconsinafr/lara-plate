@@ -23,6 +23,9 @@ class PostTransformer extends TransformerAbstract
     {
         return [
             'id'         => (int) $model->id,
+            'title'         => $model->title,
+            'author'         => $model->author,
+            'content'         => $model->content,
 
             /* place your other model properties here */
 

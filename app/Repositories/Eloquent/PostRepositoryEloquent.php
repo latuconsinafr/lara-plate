@@ -51,6 +51,16 @@ class PostRepositoryEloquent extends BaseRepository implements PostRepository, C
     }
 
     /**
+     * Specify Presenter class name
+     *
+     * @return mixed
+     */
+    public function presenter()
+    {
+        return "App\\Presenters\\PostPresenter";
+    }
+
+    /**
      * Boot up the repository, pushing criteria
      */
     public function boot()
