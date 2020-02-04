@@ -46,10 +46,10 @@ class PostsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
-        $posts = $this->repository->all();
+        $posts = $this->repository->paginate($limit = $request->limit, $columns = ['*']);
 
         if (request()->wantsJson()) {
 
