@@ -7,6 +7,7 @@ use Prettus\Repository\Contracts\Transformable;
 use Prettus\Repository\Traits\TransformableTrait;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Passport\HasApiTokens;
 
 /**
  * Class User.
@@ -15,7 +16,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class User extends Authenticatable implements Transformable
 {
-    use Notifiable;
+    use HasApiTokens, Notifiable;
     use TransformableTrait;
 
     /**
