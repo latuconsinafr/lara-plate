@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -10,22 +11,17 @@
 | is assigned the "api" middleware group. Enjoy building your API!
 |
  */
-Route::middleware('auth:api')->group(function () {
-    Route::resource('posts', PostsController::class);
-});
+Route::prefix('v1')->group(function () {
+    Route::prefix('auth')->group(function () {
+        Route::post('login', 'AuthenticationController@login');
+        Route::post('register', 'AuthenticationController@register');
 
-Route::group([
-    'prefix' => 'auth',
-], function () {
-    Route::post('login', 'Auth\LoginController@login');
-    Route::post('signup', 'Auth\RegisterController@signup');
+        Route::group(['middleware' => 'auth.jwt'], function () {
+            Route::get('logout', 'AuthenticationController@logout');
+        });
+    });
 
-    Route::group([
-        'middleware' => 'auth:api',
-    ], function () {
-        Route::get('logout', 'Auth\LoginController@logout');
-        // Route::get('user', 'Auth\AuthController@user');
+    Route::group(['middleware' => 'auth.jwt'], function () {
+        Route::resource('users', UsersController::class);
     });
 });
-
-Route::resource('users', UsersController::class);
