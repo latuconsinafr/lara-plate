@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use App\Http\Requests;
-use Prettus\Validator\Contracts\ValidatorInterface;
-use Prettus\Validator\Exceptions\ValidatorException;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserUpdateRequest;
+use App\Models\User;
 use App\Repositories\Contracts\UserRepository;
 use App\Validators\UserValidator;
+use Prettus\Validator\Contracts\ValidatorInterface;
+use Prettus\Validator\Exceptions\ValidatorException;
 
 /**
  * Class UsersController.
@@ -38,7 +36,9 @@ class UsersController extends Controller
     public function __construct(UserRepository $repository, UserValidator $validator)
     {
         $this->repository = $repository;
-        $this->validator  = $validator;
+        $this->validator = $validator;
+
+        $this->middleware('jwt.auth');
     }
 
     /**
@@ -51,14 +51,10 @@ class UsersController extends Controller
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
         $users = $this->repository->all();
 
-        if (request()->wantsJson()) {
-
-            return response()->json([
-                'data' => $users,
-            ]);
-        }
-
-        return view('users.index', compact('users'));
+        return response()->json([
+            'success' => true,
+            'data' => $users,
+        ]);
     }
 
     /**
@@ -75,29 +71,21 @@ class UsersController extends Controller
         try {
 
             $this->validator->with($request->all())->passesOrFail(ValidatorInterface::RULE_CREATE);
+            // $user = $this->repository->create($request->all()); got issue with tymon/jwt-auth
+            $user = new User($request->all());
+            $user->save();
 
-            $user = $this->repository->create($request->all());
-
-            $response = [
+            return response()->json([
+                'success' => true,
                 'message' => 'User created.',
-                'data'    => $user->toArray(),
-            ];
-
-            if ($request->wantsJson()) {
-
-                return response()->json($response);
-            }
-
-            return redirect()->back()->with('message', $response['message']);
+                'data' => $user->toArray(),
+            ]);
         } catch (ValidatorException $e) {
-            if ($request->wantsJson()) {
-                return response()->json([
-                    'error'   => true,
-                    'message' => $e->getMessageBag()
-                ]);
-            }
 
-            return redirect()->back()->withErrors($e->getMessageBag())->withInput();
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessageBag(),
+            ], 400);
         }
     }
 
@@ -112,14 +100,10 @@ class UsersController extends Controller
     {
         $user = $this->repository->find($id);
 
-        if (request()->wantsJson()) {
-
-            return response()->json([
-                'data' => $user,
-            ]);
-        }
-
-        return view('users.show', compact('user'));
+        return response()->json([
+            'success' => true,
+            'data' => $user,
+        ]);
     }
 
     /**
@@ -131,9 +115,7 @@ class UsersController extends Controller
      */
     public function edit($id)
     {
-        $user = $this->repository->find($id);
-
-        return view('users.edit', compact('user'));
+        //
     }
 
     /**
@@ -150,35 +132,24 @@ class UsersController extends Controller
     {
         try {
 
-            $this->validator->with($request->all())->passesOrFail(ValidatorInterface::RULE_UPDATE);
+            $this->validator->with($request->all())->setId($id)->passesOrFail(ValidatorInterface::RULE_UPDATE);
+            // $user = $this->repository->update($request->all(), $id); got issue with tymon/jwt-auth
+            $user = User::where('id', $id)->firstOrFail()->update($request->all());
+            $user = User::where('id', $id)->firstOrFail();
 
-            $user = $this->repository->update($request->all(), $id);
-
-            $response = [
+            return response()->json([
+                'success' => true,
                 'message' => 'User updated.',
-                'data'    => $user->toArray(),
-            ];
-
-            if ($request->wantsJson()) {
-
-                return response()->json($response);
-            }
-
-            return redirect()->back()->with('message', $response['message']);
+                'data' => $user->toArray(),
+            ]);
         } catch (ValidatorException $e) {
 
-            if ($request->wantsJson()) {
-
-                return response()->json([
-                    'error'   => true,
-                    'message' => $e->getMessageBag()
-                ]);
-            }
-
-            return redirect()->back()->withErrors($e->getMessageBag())->withInput();
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessageBag(),
+            ], 400);
         }
     }
-
 
     /**
      * Remove the specified resource from storage.
@@ -189,16 +160,11 @@ class UsersController extends Controller
      */
     public function destroy($id)
     {
-        $deleted = $this->repository->delete($id);
+        $this->repository->delete($id);
 
-        if (request()->wantsJson()) {
-
-            return response()->json([
-                'message' => 'User deleted.',
-                'deleted' => $deleted,
-            ]);
-        }
-
-        return redirect()->back()->with('message', 'User deleted.');
+        return response()->json([
+            'success' => true,
+            'message' => 'User deleted.',
+        ]);
     }
 }
