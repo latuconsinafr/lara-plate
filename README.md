@@ -66,4 +66,4 @@ This repository currently applied json web token authentication for laravel & lu
 
 ## License
 
-The Laravel boilerplate is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The lara-plate boilerplate is open-sourced boilerplate licensed under the [MIT license](https://opensource.org/licenses/MIT).
