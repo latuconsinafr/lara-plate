@@ -27,7 +27,7 @@ class AuthenticationController extends Controller
     /**
      * @var bool
      */
-    public $loginAfterSignUp = true;
+    public $loginAfterSignUp = false;
 
     /**
      * AuthenticationController constructor.
@@ -98,6 +98,7 @@ class AuthenticationController extends Controller
         try {
 
             $this->validator->with($request->all())->passesOrFail(ValidatorInterface::RULE_CREATE);
+            $this->loginAfterSignUp = $request->auto_login;
 
             $user = new User($request->all());
             $user->save();

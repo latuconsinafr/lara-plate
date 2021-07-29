@@ -38,7 +38,16 @@ class UsersController extends Controller
         $this->repository = $repository;
         $this->validator = $validator;
 
-        $this->middleware('jwt.auth');
+        /* Permission middleware */
+        $this->middleware('permission:' . getApplicationPermission('super-admin')) // By default super-admin can do literally anything
+            ->only([
+                'index',
+                'store',
+                'show',
+                'edit',
+                'update',
+                'destroy'
+            ]);
     }
 
     /**

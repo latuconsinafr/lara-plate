@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Prettus\Repository\Contracts\Transformable;
 use Prettus\Repository\Traits\TransformableTrait;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * Class User.
@@ -18,7 +19,8 @@ class User extends Authenticatable implements Transformable, JWTSubject
 {
     use Notifiable;
     use TransformableTrait;
-
+    use HasRoles;
+    
     /**
      * The attributes that are mass assignable.
      *

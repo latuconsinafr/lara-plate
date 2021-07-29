@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Route;
  */
 
 Route::prefix('v1')->group(function () {
+
+    /* Auth */
     Route::prefix('auth')->group(function () {
         Route::post('login', 'AuthenticationController@login');
         Route::post('register', 'AuthenticationController@register');
@@ -23,7 +25,11 @@ Route::prefix('v1')->group(function () {
         });
     });
 
+    /* With Auth */
     Route::group(['middleware' => 'auth.jwt'], function () {
         Route::resource('users', UsersController::class);
     });
+
+    /* Without Auth */
+    // Without authentication routes here ...
 });
